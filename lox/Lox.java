@@ -15,7 +15,7 @@ public class Lox {
             System.out.println("Command Usage: jlox [script]");
             System.exit(64);
         } else if (args.length == 1) {
-            runFile(args[0])
+            runFile(args[0]);
         } else {
             runPrompt();
         }
@@ -43,10 +43,11 @@ public class Lox {
     }
     
     private static void run(String source) {
+        // COALESCE ERRORS HERE LATER
         if (hadError) System.exit(65);
 
         Scanner scanner = new Scanner(source);
-        List<Token> Tokens = scanner.scanTokens();
+        List<Token> tokens = scanner.scanTokens();
 
         // Print tokens emitted from scanner to verify functionality
         for (Token token: tokens) {
@@ -60,6 +61,7 @@ public class Lox {
     }
     private static void report(int line, String where, String message) {
         System.err.println("[line " + line + "] Error" + where + ": " + message);
+        hadError = true;
     }
 
 }
