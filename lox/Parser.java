@@ -28,6 +28,26 @@ class Parser {
         return conditional();
     }
 
+    // Future Support for implementing comma operator
+    /*
+
+    private Expr expression() {
+        return comma();
+    }
+
+    private Expr comma() {
+        Expr expr = conditional();
+
+        while (match(COMMA)) {
+            Token operator = previous();
+            Expr right = conditional();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
+     */
+
     private Expr conditional() {
         Expr expr = equality();
 
