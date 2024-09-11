@@ -12,10 +12,10 @@ abstract class Expr {
   }
 
   static class Conditional extends Expr {
-    Conditional(Expr condition, Expr left, Expr right) {
+    Conditional(Expr condition, Expr thenBranch, Expr elseBranch) {
         this.condition = condition;
-        this.left = left;
-        this.right = right;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
     }
 
     <R> R accept(Visitor<R> visitor){
@@ -23,8 +23,8 @@ abstract class Expr {
         }
 
     final Expr condition;
-    final Expr left;
-    final Expr right;
+    final Expr thenBranch;
+    final Expr elseBranch;
  }
 
   static class Binary extends Expr {
