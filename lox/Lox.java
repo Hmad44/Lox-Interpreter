@@ -37,16 +37,31 @@ public class Lox {
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
-
+    
         for (;;) {
-            System.out.println("> ");
-            String line = reader.readLine();
-            if (line == null) break;
-            run(line);
-            // Reset flag so interactive loop is not killed
             hadError = false;
+        
+            System.out.print("> ");
+            Scanner scanner = new Scanner(reader.readLine());
+            List<Token> tokens = scanner.scanTokens();
+        
+            Parser parser = new Parser(tokens);
+            Object syntax = parser.parseRepl();
+        
+            // Ignore if syntax error.
+            if (hadError) continue;
+        
+            if (syntax instanceof List) {
+                interpreter.interpret((List<Stmt>)syntax);
+            } else if (syntax instanceof Expr) {
+                String result = interpreter.interpret((Expr)syntax);
+                if (result != null) {
+                    System.out.println("= " + result);
+                }
+            }
         }
     }
+      
     
     private static void run(String source) {
         // COALESCE ERRORS HERE LATER
@@ -82,7 +97,7 @@ public class Lox {
     }
 
     static void runtimeError(RuntimeError error) {
-        System.err.println(error.getMessage() + "in[line " + error.token.line + "]");
+        System.err.println(error.getMessage() + " In [line " + error.token.line + "]");
         hadRuntimeError = true;
     }
 

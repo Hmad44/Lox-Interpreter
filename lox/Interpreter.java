@@ -2,9 +2,12 @@ package lox;
 
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
+
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Environment environment = new Environment();
+    private static Object uninitialized = new Object();
 
     // Takes in syntax tree of expression, evaluates, and converts the value to a string
     void interpret(List<Stmt> statements) {
@@ -16,6 +19,17 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             Lox.runtimeError(error);
         }
     }
+
+    String interpret(Expr expression) {
+        try {
+            Object value = evaluate(expression);
+            return stringify(value);
+        } catch (RuntimeError error) {
+            Lox.runtimeError(error);
+            return null;
+        }
+    }
+      
     // Evaluate literals
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
@@ -63,7 +77,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // Evaluate variable expression
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        Object value = environment.get(expr.name);
+        if (value == uninitialized) {
+            throw new RuntimeError(expr.name, "Variable must be initialized before use.");
+        }
+        return value;
     }
 
     // Evaluate binary operators
@@ -201,7 +219,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
-        Object value = null;
+        Object value = uninitialized;
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
         }
